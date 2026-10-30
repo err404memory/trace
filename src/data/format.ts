@@ -1,4 +1,5 @@
 import type { Dataset } from './types';
+import { parseTime } from './dataset';
 
 export interface Shown {
   /** Readable text for display. */
@@ -8,8 +9,11 @@ export interface Shown {
   empty: boolean;
 }
 
-/** Readable form of one cell. The stored text is always `ds.rows[ri].values[ci]`. */
-export function readable(ds: Dataset, ri: number, ci: number): Shown {
+/**
+ * Readable form of one cell. The stored text is always `ds.rows[ri].values[ci]`.
+ * `compact` shortens times for table cells.
+ */
+export function readable(ds: Dataset, ri: number, ci: number, compact = false): Shown {
   const raw = ds.rows[ri].values[ci] ?? '';
   if (raw.trim() === '') return { text: '(empty)', differs: raw !== '', empty: true };
   const col = ds.columns[ci];
@@ -19,7 +23,7 @@ export function readable(ds: Dataset, ri: number, ci: number): Shown {
   switch (col.role) {
     case 'time': {
       const t = ds.t[ri];
-      return Number.isFinite(t) ? same(fmtDateTime(t)) : same(raw);
+      return Number.isFinite(t) ? same(compact ? fmtShort(t) : fmtDateTime(t)) : same(raw);
     }
     case 'lat':
     case 'lon':
@@ -41,6 +45,11 @@ export function readable(ds: Dataset, ri: number, ci: number): Shown {
     case 'battery':
       return Number.isFinite(ds.bat[ri]) ? same(`${round(ds.bat[ri] * 100, 0)} %`) : same(raw);
   }
+  // Other time columns (e.g. Colota's epoch `timestamp` next to `iso_time`).
+  if (/time|date|when|stamp/i.test(col.key)) {
+    const t = parseTime(raw);
+    if (Number.isFinite(t)) return same(compact ? fmtShort(t) : fmtDateTime(t));
+  }
   if (col.kind === 'number' && Number.isFinite(n) && /\.\d{7,}/.test(raw)) return same(String(round(n, 6)));
   return same(raw);
 }
@@ -61,6 +70,7 @@ const day = new Intl.DateTimeFormat(undefined, { weekday: 'short', day: 'numeric
 const dayYear = new Intl.DateTimeFormat(undefined, { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
 
 export const fmtDateTime = (t: number) => dateTime.format(t);
+export const fmtShort = (t: number) => `${day.format(t)} ${clock.format(t)}`;
 export const fmtClock = (t: number) => clock.format(t);
 export const fmtHM = (t: number) => hm.format(t);
 export const fmtDay = (t: number) => day.format(t);
