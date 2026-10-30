@@ -1,0 +1,2 @@
+# Not published: source maps stay out of the deployed site.
+*.map

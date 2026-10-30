@@ -13,3 +13,4 @@ exports/
 *.csv
 !samples/*.csv
 samples/generated/
+.wrangler/

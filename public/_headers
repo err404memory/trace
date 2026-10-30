@@ -1,0 +1,17 @@
+# Cloudflare static-asset headers (not served as a file).
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=()
+
+# The service worker must be re-checked on every visit so updates arrive.
+/sw.js
+  Cache-Control: no-cache
+
+/manifest.webmanifest
+  Content-Type: application/manifest+json
+  Cache-Control: no-cache
+
+# Built files have content hashes in their names.
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable

@@ -42,12 +42,31 @@ npm run smoke       # needs Playwright on the machine; loads the sample, saves s
 Real exports are git-ignored (`*.csv`, `*.geojson`, `*.gpx`, `*.kml`,
 `exports/`). Don't commit location data.
 
+## Hosting (Cloudflare)
+
+The site is a Cloudflare Worker that serves `dist/` as static assets
+(`wrangler.jsonc`), at **https://trace.ghostyashes.com**. Cloudflare Workers
+Builds deploys it on every push to `main`.
+
+One-time setup in the Cloudflare dashboard:
+
+1. **Workers & Pages → Create → Import a repository**, connect GitHub and pick
+   `err404memory/trace`.
+2. Project name **`trace`** (must match `name` in `wrangler.jsonc`).
+   Build command **`npm run build`**, deploy command **`npx wrangler deploy`**
+   (the default). Root directory: `/`.
+3. Save and deploy. The `routes` entry in `wrangler.jsonc` creates the DNS
+   record and HTTPS certificate for `trace.ghostyashes.com` automatically.
+
+Manual deploy from a computer instead: `npx wrangler login`, then `npm run deploy`.
+
+`public/_headers` keeps the service worker uncached (so updates arrive) and
+caches the hashed build files for a year. Source maps are not published.
+
 ## Install on Android
 
-The app must be served over HTTPS to install. Any static host works (the
-`dist/` folder after `npm run build`). Note: GitHub Pages from a private repo
-needs a paid GitHub plan; Cloudflare Pages and Netlify host private repos on
-their free tiers. Then open the site in Chrome → menu → **Install app**.
+Open https://trace.ghostyashes.com in Chrome → menu → **Install app**. After
+that, Trace appears in the share sheet for CSV, GeoJSON, GPX and KML files.
 
 ## Basemap
 
