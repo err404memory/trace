@@ -1,0 +1,15 @@
+node_modules/
+dist/
+.DS_Store
+*.log
+screenshots/
+
+# Never commit real location exports. Synthetic samples live in samples/.
+exports/
+*colota_export*
+*.geojson
+*.gpx
+*.kml
+*.csv
+!samples/*.csv
+samples/generated/
