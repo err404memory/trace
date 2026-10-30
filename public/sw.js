@@ -1,5 +1,5 @@
 // Trace service worker: offline app shell + Android "Share to Trace".
-const SHELL = 'trace-shell-v1';
+const SHELL = 'trace-shell-v2';
 
 self.addEventListener('install', (event) => {
   event.waitUntil(caches.open(SHELL).then((c) => c.addAll(['./', './index.html', './manifest.webmanifest', './icon.svg'])));
@@ -33,10 +33,14 @@ self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET' || url.origin !== self.location.origin) return;
 
   // Pages: network first, so updates arrive; cached copy when offline.
+  // Only a real page is cached: a redirect (e.g. to the Cloudflare Access sign-in
+  // when the session has expired) is passed through so the browser can follow it.
   if (event.request.mode === 'navigate') {
     event.respondWith(fetch(event.request).then((res) => {
-      const copy = res.clone();
-      caches.open(SHELL).then((c) => c.put('./index.html', copy));
+      if (res.ok && res.type === 'basic') {
+        const copy = res.clone();
+        caches.open(SHELL).then((c) => c.put('./index.html', copy));
+      }
       return res;
     }).catch(() => caches.match('./index.html')));
     return;
@@ -44,7 +48,7 @@ self.addEventListener('fetch', (event) => {
 
   // Built assets have content hashes in their names: cache first.
   event.respondWith(caches.match(event.request).then((hit) => hit || fetch(event.request).then((res) => {
-    if (res.ok) { const copy = res.clone(); caches.open(SHELL).then((c) => c.put(event.request, copy)); }
+    if (res.ok && res.type === 'basic') { const copy = res.clone(); caches.open(SHELL).then((c) => c.put(event.request, copy)); }
     return res;
   })));
 });

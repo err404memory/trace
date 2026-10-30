@@ -63,6 +63,24 @@ Manual deploy from a computer instead: `npx wrangler login`, then `npm run deplo
 `public/_headers` keeps the service worker uncached (so updates arrive) and
 caches the hashed build files for a year. Source maps are not published.
 
+### Optional: Cloudflare Access
+
+Access keeps the site itself private. (Your location files are never sent to
+the server either way: they are read on the device.) In the Cloudflare
+dashboard: **Zero Trust → Access → Applications → Add an application →
+Self-hosted**:
+
+- Domain: `trace.ghostyashes.com`
+- Session duration: **1 month**, so the installed app rarely asks you to sign in
+- Policy: **Allow**, Include → **Emails** → your address
+- Login method: One-time PIN (on by default), or add GitHub/Google
+
+The app is already set up for it: the manifest is fetched with credentials so
+installing works, the service worker never caches the sign-in redirect, and
+there are no `workers.dev` or preview URLs that would bypass it. When the
+session expires the app opens the sign-in page once, then carries on; offline,
+the cached copy keeps working.
+
 ## Install on Android
 
 Open https://trace.ghostyashes.com in Chrome → menu → **Install app**. After

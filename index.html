@@ -6,7 +6,8 @@
   <meta name="theme-color" content="#10141A">
   <meta name="description" content="Open a location export and explore every point on a map, in a table and over time. Runs on your device.">
   <title>Trace</title>
-  <link rel="manifest" href="./manifest.webmanifest">
+  <!-- use-credentials: the manifest must be fetched with the Cloudflare Access cookie or installing fails. -->
+  <link rel="manifest" href="./manifest.webmanifest" crossorigin="use-credentials">
   <link rel="icon" href="./icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="./icon-192.png">
 </head>

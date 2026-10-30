@@ -11,5 +11,8 @@
   // Creates the DNS record and certificate for the subdomain on deploy
   // (ghostyashes.com must be a zone in the same Cloudflare account).
   "routes": [{ "pattern": "trace.ghostyashes.com", "custom_domain": true }],
-  "workers_dev": false
+  // No *.workers.dev or preview URLs: the custom domain is the only way in,
+  // so Cloudflare Access on it covers everything.
+  "workers_dev": false,
+  "preview_urls": false
 }
